@@ -1,3 +1,9 @@
+## [0.0.49](https://github.com/involvex/youtube-music-cli/compare/v0.0.48...v0.0.49) (2026-03-08)
+
+### Features
+
+- **cli:** enhance help text with emojis and improve flag handling ([067c6f9](https://github.com/involvex/youtube-music-cli/commit/067c6f926e96a2c43b40fe810e224d8bb6177687))
+
 ## [0.0.48](https://github.com/involvex/youtube-music-cli/compare/v0.0.47...v0.0.48) (2026-03-08)
 
 ## [0.0.47](https://github.com/involvex/youtube-music-cli/compare/v0.0.46...v0.0.47) (2026-03-07)
