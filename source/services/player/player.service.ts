@@ -20,7 +20,6 @@ export type MpvArgsOptions = PlayOptions & {
 };
 
 export function buildMpvArgs(
-	url: string,
 	ipcPath: string,
 	options: MpvArgsOptions,
 ): string[] {
@@ -51,6 +50,9 @@ export function buildMpvArgs(
 		audioFilters.push(...presetFilters);
 	}
 
+	// URL is NOT passed as a CLI arg — it's sent via IPC loadfile after
+	// the socket connects. This avoids a race condition where the IPC
+	// handshake interferes with mpv's yt-dlp URL resolution.
 	const mpvArgs = [
 		'--no-video',
 		'--no-terminal',
@@ -73,8 +75,6 @@ export function buildMpvArgs(
 	if (options.proxy) {
 		mpvArgs.push(`--http-proxy=${options.proxy}`);
 	}
-
-	mpvArgs.push(url);
 
 	return mpvArgs;
 }
@@ -157,9 +157,9 @@ class PlayerService {
 	}
 
 	/**
-	 * Connect to mpv IPC socket
+	 * Connect to mpv IPC socket and optionally load a URL via loadfile
 	 */
-	private async connectIpc(): Promise<void> {
+	private async connectIpc(urlToLoad?: string): Promise<void> {
 		if (!this.ipcPath) {
 			throw new Error('IPC path not set');
 		}
@@ -182,6 +182,16 @@ class PlayerService {
 					this.sendIpcCommand(['observe_property', 2, 'duration']);
 					this.sendIpcCommand(['observe_property', 3, 'pause']);
 					this.sendIpcCommand(['observe_property', 4, 'eof-reached']);
+
+					// Load the URL via IPC after socket is connected.
+					// This ensures mpv is fully ready before we ask it to
+					// resolve a YouTube URL through yt-dlp.
+					if (urlToLoad) {
+						logger.info('PlayerService', 'Loading URL via IPC loadfile', {
+							url: urlToLoad.substring(0, 100),
+						});
+						this.sendIpcCommand(['loadfile', urlToLoad]);
+					}
 
 					resolve();
 				});
@@ -374,7 +384,7 @@ class PlayerService {
 					ipcPath: this.ipcPath,
 				});
 
-				const mpvArgs = buildMpvArgs(playUrl, this.ipcPath!, {
+				const mpvArgs = buildMpvArgs(this.ipcPath!, {
 					volume: this.currentVolume,
 					audioNormalization: options?.audioNormalization,
 					proxy: options?.proxy,
@@ -416,17 +426,17 @@ class PlayerService {
 				// Connect to IPC socket after a delay (longer on Windows)
 				const ipcDelay = process.platform === 'win32' ? 500 : 200;
 				setTimeout(() => {
-					this.connectIpc()
+					this.connectIpc(playUrl)
 						.then(() => {
-							// IPC connected successfully - we consider playback started
+							// IPC connected and loadfile sent - playback starting
 							handleSuccess();
 						})
 						.catch(error => {
 							logger.warn('PlayerService', 'Failed to connect IPC', {
 								error: error.message,
 							});
-							// Continue without IPC - basic playback will still work
-							handleSuccess();
+							// IPC failed - mpv is idle with no URL loaded
+							handleError(new Error(`IPC connection failed: ${error.message}`));
 						});
 				}, ipcDelay);
 
