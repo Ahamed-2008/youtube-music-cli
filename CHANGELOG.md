@@ -1,3 +1,9 @@
+## [0.0.64](https://github.com/involvex/youtube-music-cli/compare/v0.0.63...v0.0.64) (2026-04-02)
+
+### Features
+
+- **ai:** add AI chat assistant with playlist management tools ([fdbebd6](https://github.com/involvex/youtube-music-cli/commit/fdbebd6196738f7766ba313f9b88f00ba4442af1))
+
 ## [0.0.63](https://github.com/involvex/youtube-music-cli/compare/v0.0.62...v0.0.63) (2026-03-28)
 
 ## [0.0.62](https://github.com/involvex/youtube-music-cli/compare/v0.0.61...v0.0.62) (2026-03-27)
