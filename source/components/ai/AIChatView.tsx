@@ -6,12 +6,15 @@ import type {ReactNode} from 'react';
 import {useChat} from '../../stores/chat.store.tsx';
 import {useNavigation} from '../../hooks/useNavigation.ts';
 import {useKeyBinding} from '../../hooks/useKeyboard.ts';
+import {useKeyboardBlocker} from '../../hooks/useKeyboardBlocker.tsx';
 import {VIEW, KEYBINDINGS} from '../../utils/constants.ts';
 
 export default function AIChatView(): ReactNode {
 	const {messages, isProcessing, error, sendMessage, isConfigured} = useChat();
 	const {dispatch} = useNavigation();
 	const [input, setInput] = useState('');
+
+	useKeyboardBlocker(isConfigured);
 
 	const handleSubmit = async (): Promise<void> => {
 		if (!input.trim() || isProcessing) return;
@@ -88,6 +91,7 @@ export default function AIChatView(): ReactNode {
 					onChange={setInput}
 					onSubmit={handleSubmit}
 					placeholder="Ask me to play music, create a playlist, etc."
+					focus={isConfigured}
 				/>
 			</Box>
 		</Box>

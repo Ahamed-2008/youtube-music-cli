@@ -5,6 +5,7 @@ import TextInput from 'ink-text-input';
 import {useTheme} from '../../hooks/useTheme.ts';
 import {usePlugins} from '../../stores/plugins.store.tsx';
 import {useKeyBinding} from '../../hooks/useKeyboard.ts';
+import {useKeyboardBlocker} from '../../hooks/useKeyboardBlocker.tsx';
 import {KEYBINDINGS} from '../../utils/constants.ts';
 
 interface PluginInstallDialogProps {
@@ -22,6 +23,8 @@ export default function PluginInstallDialog({
 		success: boolean;
 		message: string;
 	} | null>(null);
+
+	useKeyboardBlocker(true);
 
 	const handleSubmit = useCallback(async () => {
 		if (!input.trim() || installing) return;
@@ -81,6 +84,7 @@ export default function PluginInstallDialog({
 					onChange={setInput}
 					onSubmit={handleSubmit}
 					placeholder="e.g., adblock or https://github.com/user/plugin"
+					focus
 				/>
 			</Box>
 

@@ -5,6 +5,7 @@ import TextInput from 'ink-text-input';
 import {useTheme} from '../../hooks/useTheme.ts';
 import {useNavigation} from '../../hooks/useNavigation.ts';
 import {useKeyBinding} from '../../hooks/useKeyboard.ts';
+import {useKeyboardBlocker} from '../../hooks/useKeyboardBlocker.tsx';
 import {KEYBINDINGS} from '../../utils/constants.ts';
 import {getImportService} from '../../services/import/import.service.ts';
 import type {ImportSource, ImportProgress} from '../../types/import.types.ts';
@@ -34,6 +35,8 @@ export default function ImportLayout() {
 		errors: string[];
 	} | null>(null);
 	const [error, setError] = useState<string | null>(null);
+
+	useKeyboardBlocker(step === 'url' || step === 'name');
 
 	const goBack = useCallback(() => {
 		if (step === 'source') {
