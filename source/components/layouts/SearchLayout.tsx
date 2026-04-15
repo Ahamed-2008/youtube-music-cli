@@ -11,6 +11,7 @@ import type {
 import {useTheme} from '../../hooks/useTheme.ts';
 import SearchBar from '../search/SearchBar.tsx';
 import {useKeyBinding} from '../../hooks/useKeyboard.ts';
+import {useKeyboardBlocker} from '../../hooks/useKeyboardBlocker.tsx';
 import {KEYBINDINGS, VIEW} from '../../utils/constants.ts';
 import {Box, Text} from 'ink';
 import {usePlayer} from '../../hooks/usePlayer.ts';
@@ -50,6 +51,8 @@ function SearchLayout() {
 	const lastAutoSearchedQueryRef = useRef<string | null>(null);
 	const [editingFilter, setEditingFilter] = useState<FilterField | null>(null);
 	const [filterDraft, setFilterDraft] = useState('');
+
+	useKeyboardBlocker(editingFilter !== null);
 
 	const describeFilterValue = (value?: string) =>
 		value?.trim() ? value.trim() : 'Any';
